@@ -1,7 +1,7 @@
 module.exports = [
     {
         type: 'checkbox',
-        name: 'Do you want to buy or sell a token?',
+        name: 'Do you want to BUY or SELL a token?',
         choices: [
             {
                 name: 'Buy'

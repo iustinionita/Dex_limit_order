@@ -7,11 +7,10 @@ const TOKENjson = require('./TOKEN.json')
 const { walletAddress, privateKey, buyWith } = require('./wallet')
 
 //SETUP
-const web3 = new Web3('https://bsc-dataseed.binance.org/')
-const PCScontract = new web3.eth.Contract(PCSjson, '0x10ED43C718714eb63d5aA57B78B54704E256024E')
+const web3 = new Web3('https://data-seed-prebsc-1-s1.binance.org:8545/') // Testnet
+const PCScontract = new web3.eth.Contract(PCSjson, '0xD99D1c33F9fC3444f8101754aBC46c52416550D1') // Testnet
 
 //CONFIG
-// const token = '0x0E09FaBB73Bd3Ade0a17ECC321fD13a19e81cE82' // Cake
 let tokenContract;
 let tokenSymbol;
 let event;
@@ -30,7 +29,11 @@ inquirer.prompt(questions).then(async answers => {
     amount = web3.utils.toWei(answers.amount, 'ether')
     
     //Message for the user
-    console.log(`\nWaiting to ${event} ${tokenSymbol} at the rate of ${targetPrice} ${tokenSymbol}/BNB for a total amount of ${answers.amount} BNB`)
+    if(event === "Buy") {
+        console.log(`\nWaiting to ${event} ${tokenSymbol} at the rate of ${targetPrice} ${tokenSymbol}/BNB for a total amount of ${answers.amount} BNB \nYou should receive ${answers.amount / targetPrice} ${tokenSymbol}`)
+    } else {
+        console.log(`\nWaiting to ${event} ${tokenSymbol} at the rate of ${targetPrice} ${tokenSymbol}/BNB for a total amount of ${answers.amount} ${tokenSymbol} \nYou should receive ${answers.amount * targetPrice} BNB`)
+    }
     
     const priceInterval = setInterval(() => {
         if(eventComplete === false) {
@@ -45,7 +48,7 @@ function scanPrices(address) {
     PCScontract.methods.getAmountsOut(web3.utils.toWei('1', 'ether'), [web3.utils.toChecksumAddress(address), buyWith])
     .call().then(data => {
         let price = Number(web3.utils.fromWei(data[1])).toFixed(12);
-        stdout.write(` Current rate: ${price} ${tokenSymbol}/BNB`)
+        stdout.write(` Current rate: ${price} BNB/${tokenSymbol}`)
         stdout.cursorTo(0)
         // console.log(price)
         if(event === 'Buy' && price <= targetPrice) {
@@ -72,7 +75,7 @@ function buy() {
     const rawTransaction = {
         "from": walletAddress,
         "gas": 550000,
-        "to": "0x10ED43C718714eb63d5aA57B78B54704E256024E", //PCS Router Address
+        "to": "0xD99D1c33F9fC3444f8101754aBC46c52416550D1", //PCS Router Address
         "value": amount,
         "data": encodedData
     }
@@ -81,13 +84,13 @@ function buy() {
     .then(signed => {
         web3.eth.sendSignedTransaction(signed.rawTransaction).on('receipt', receipt => {
             // console.log(receipt)
-            console.log(`https://bscscan.com/tx/${receipt.transactionHash}`)
+            console.log(`https://testnet.bscscan.com/tx/${receipt.transactionHash}`)
         })
     })
 }
 
 function sell() {
-    const hashApprove = tokenContract.methods.approve('0x10ED43C718714eb63d5aA57B78B54704E256024E', amount).encodeABI()
+    const hashApprove = tokenContract.methods.approve('0xD99D1c33F9fC3444f8101754aBC46c52416550D1', amount).encodeABI()
     const signedApprove = web3.eth.accounts.signTransaction({
         "from": walletAddress,
         "to": contractAddress,
@@ -107,12 +110,12 @@ function sell() {
             const rawTransaction = {
                 "from": walletAddress,
                 "gas": 500000,
-                "to": "0x10ED43C718714eb63d5aA57B78B54704E256024E",
+                "to": "0xD99D1c33F9fC3444f8101754aBC46c52416550D1",
                 "data": encodedData,
             }
             const signedTx = web3.eth.accounts.signTransaction(rawTransaction, privateKey)
             .then(signed => {
-                web3.eth.sendSignedTransaction(signed.rawTransaction).on('receipt', receipt => {console.log})
+                web3.eth.sendSignedTransaction(signed.rawTransaction).on('receipt', receipt => {console.log(`https://testnet.bscscan.com/tx/${receipt.transactionHash}`)})
             })
         })
     })
