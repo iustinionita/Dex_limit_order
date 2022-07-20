@@ -53,7 +53,7 @@ Or run `docker run -it --rm --name dex iustin23/dex node app.js` to use the defa
 
 1. I'll run the command `node app` to use the test wallet.
 2. Select "Buy" option
-3. Type the target price. In this example I will use **0.1** BUSD per BNB - this is a low exchange rate, so the order will be executed immediately.
+3. Type the target price. In this example I will use **0.01** BUSD per BNB - this is a low exchange rate, so the order will be executed immediately.
 4. Type the contract address: **0xeD24FC36d5Ee211Ea25A80239Fb8C4Cfd80f12Ee**
 5. Type how much you would like to spend. In this example I will use **1** BUSD
 6. Press Enter and wait for the app to scan for the price and execute your order.
